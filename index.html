@@ -10,6 +10,7 @@
 
   <meta name="theme-color" content="#3157d5">
   <meta name="background-color" content="#f4f7fb">
+
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -80,7 +81,7 @@
       background:
         radial-gradient(
           circle at top left,
-          rgba(82,121,255,0.09),
+          rgba(82, 121, 255, 0.09),
           transparent 34%
         ),
         var(--bg);
@@ -100,8 +101,7 @@
       padding: 24px;
       border-radius: 24px;
       background: #fff;
-      box-shadow:
-        0 18px 48px rgba(25,39,71,0.14);
+      box-shadow: 0 18px 48px rgba(25, 39, 71, 0.14);
       text-align: center;
     }
 
@@ -113,14 +113,8 @@
       display: grid;
       place-items: center;
       color: #fff;
-      background:
-        linear-gradient(
-          145deg,
-          #4a70ed,
-          #2448c2
-        );
-      box-shadow:
-        0 10px 24px rgba(49,87,213,0.24);
+      background: linear-gradient(145deg, #4a70ed, #2448c2);
+      box-shadow: 0 10px 24px rgba(49, 87, 213, 0.24);
       font-weight: 800;
       font-size: 23px;
     }
@@ -174,8 +168,7 @@
       padding: 22px;
       border-radius: 22px;
       background: #fff;
-      box-shadow:
-        0 16px 44px rgba(25,39,71,0.13);
+      box-shadow: 0 16px 44px rgba(25, 39, 71, 0.13);
     }
 
     .error-card h2 {
@@ -207,50 +200,25 @@
 </head>
 
 <body>
-
   <div id="app">
 
     <div id="loading">
-
       <div class="loading-card">
-
-        <div class="app-icon">
-          OT
-        </div>
-
-        <h1>
-          OneTrack
-        </h1>
-
-        <p>
-          Loading your attendance dashboard…
-        </p>
-
-        <div
-          class="spinner"
-          aria-hidden="true"
-        ></div>
-
+        <div class="app-icon">OT</div>
+        <h1>OneTrack</h1>
+        <p>Loading your attendance dashboard…</p>
+        <div class="spinner" aria-hidden="true"></div>
       </div>
-
     </div>
 
-
     <div id="error">
-
       <div class="error-card">
-
-        <h2>
-          Unable to open OneTrack
-        </h2>
-
+        <h2>Unable to open OneTrack</h2>
         <p>
           The dashboard could not be loaded.
-          Check your internet connection and
-          confirm the Apps Script deployment
-          is available to anyone.
+          Check your internet connection and confirm the Apps Script
+          deployment is available to anyone.
         </p>
-
         <button
           class="retry"
           type="button"
@@ -258,11 +226,8 @@
         >
           Try again
         </button>
-
       </div>
-
     </div>
-
 
     <iframe
       id="onetrack-frame"
@@ -274,128 +239,47 @@
 
   </div>
 
-
   <script>
-
-    const frame =
-      document.getElementById(
-        "onetrack-frame"
-      );
-
-    const loading =
-      document.getElementById(
-        "loading"
-      );
-
-    const error =
-      document.getElementById(
-        "error"
-      );
+    const frame = document.getElementById("onetrack-frame");
+    const loading = document.getElementById("loading");
+    const error = document.getElementById("error");
 
     let loadTimer = null;
 
-
     function startLoadTimer() {
-
       clearTimeout(loadTimer);
 
       loadTimer = setTimeout(() => {
-
-        loading.classList.add(
-          "hidden"
-        );
-
-        error.classList.add(
-          "visible"
-        );
-
+        loading.classList.add("hidden");
+        error.classList.add("visible");
       }, 15000);
-
     }
-
 
     function markLoaded() {
-
       clearTimeout(loadTimer);
-
-      error.classList.remove(
-        "visible"
-      );
-
-      // Small delay avoids a white flash
-      // while the iframe paints.
+      error.classList.remove("visible");
 
       setTimeout(() => {
-
-        loading.classList.add(
-          "hidden"
-        );
-
+        loading.classList.add("hidden");
       }, 180);
-
     }
 
-
     function reloadFrame() {
-
-      error.classList.remove(
-        "visible"
-      );
-
-      loading.classList.remove(
-        "hidden"
-      );
+      error.classList.remove("visible");
+      loading.classList.remove("hidden");
 
       startLoadTimer();
 
-      const url =
-        new URL(frame.src);
+      const url = new URL(frame.src);
+      url.searchParams.set("_reload", Date.now().toString());
 
-      url.searchParams.set(
-        "_reload",
-        Date.now().toString()
-      );
-
-      frame.src =
-        url.toString();
-
+      frame.src = url.toString();
     }
 
-
-    frame.addEventListener(
-      "load",
-      markLoaded
-    );
+    frame.addEventListener("load", markLoaded);
 
     startLoadTimer();
-
-
-    if (
-      "serviceWorker" in navigator
-    ) {
-
-      window.addEventListener(
-        "load",
-        () => {
-
-          navigator
-            .serviceWorker
-            .register("./sw.js")
-            .catch(error => {
-
-              console.warn(
-                "Service worker registration failed:",
-                error
-              );
-
-            });
-
-        }
-      );
-
-    }
-
   </script>
-
 </body>
 </html>
+
