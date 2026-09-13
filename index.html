@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, viewport-fit=cover"
+  >
+
+  <meta name="theme-color" content="#3157d5">
+  <meta name="background-color" content="#f4f7fb">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="OneTrack">
+
+  <title>OneTrack</title>
+
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icons/icon-192.png" sizes="192x192" type="image/png">
+  <link rel="apple-touch-icon" href="./icons/icon-192.png">
+
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --brand: #3157d5;
+      --ink: #162033;
+      --muted: #6d7789;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      min-height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: var(--bg);
+      font-family:
+        Inter,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+    }
+
+    #app {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--bg);
+    }
+
+    #onetrack-frame {
+      position: absolute;
+      inset: 0;
+      display: block;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: var(--bg);
+    }
+
+    #loading {
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background:
+        radial-gradient(
+          circle at top left,
+          rgba(82,121,255,0.09),
+          transparent 34%
+        ),
+        var(--bg);
+      transition:
+        opacity 180ms ease,
+        visibility 180ms ease;
+    }
+
+    #loading.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .loading-card {
+      width: min(100%, 360px);
+      padding: 24px;
+      border-radius: 24px;
+      background: #fff;
+      box-shadow:
+        0 18px 48px rgba(25,39,71,0.14);
+      text-align: center;
+    }
+
+    .app-icon {
+      width: 58px;
+      height: 58px;
+      margin: 0 auto 16px;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      background:
+        linear-gradient(
+          145deg,
+          #4a70ed,
+          #2448c2
+        );
+      box-shadow:
+        0 10px 24px rgba(49,87,213,0.24);
+      font-weight: 800;
+      font-size: 23px;
+    }
+
+    .loading-card h1 {
+      margin: 0;
+      color: var(--ink);
+      font-size: 20px;
+      line-height: 26px;
+    }
+
+    .loading-card p {
+      margin: 7px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 19px;
+    }
+
+    .spinner {
+      width: 28px;
+      height: 28px;
+      margin: 20px auto 0;
+      border: 3px solid #dbe5ff;
+      border-top-color: var(--brand);
+      border-radius: 50%;
+      animation: spin 700ms linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    #error {
+      position: absolute;
+      inset: 0;
+      z-index: 20;
+      display: none;
+      place-items: center;
+      padding: 24px;
+      background: var(--bg);
+    }
+
+    #error.visible {
+      display: grid;
+    }
+
+    .error-card {
+      width: min(100%, 420px);
+      padding: 22px;
+      border-radius: 22px;
+      background: #fff;
+      box-shadow:
+        0 16px 44px rgba(25,39,71,0.13);
+    }
+
+    .error-card h2 {
+      margin: 0 0 8px;
+      font-size: 18px;
+      color: var(--ink);
+    }
+
+    .error-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 19px;
+    }
+
+    .retry {
+      width: 100%;
+      min-height: 44px;
+      margin-top: 16px;
+      border: 0;
+      border-radius: 13px;
+      background: var(--brand);
+      color: #fff;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="app">
+
+    <div id="loading">
+
+      <div class="loading-card">
+
+        <div class="app-icon">
+          OT
+        </div>
+
+        <h1>
+          OneTrack
+        </h1>
+
+        <p>
+          Loading your attendance dashboard…
+        </p>
+
+        <div
+          class="spinner"
+          aria-hidden="true"
+        ></div>
+
+      </div>
+
+    </div>
+
+
+    <div id="error">
+
+      <div class="error-card">
+
+        <h2>
+          Unable to open OneTrack
+        </h2>
+
+        <p>
+          The dashboard could not be loaded.
+          Check your internet connection and
+          confirm the Apps Script deployment
+          is available to anyone.
+        </p>
+
+        <button
+          class="retry"
+          type="button"
+          onclick="reloadFrame()"
+        >
+          Try again
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <iframe
+      id="onetrack-frame"
+      src="https://script.google.com/macros/s/AKfycbxQf5zPvr82lunedLZJU7k6QlEKftj7BzRHGPVTNtYLjvXjGNvSZefNADTbDWhKc0xsug/exec?ui=true"
+      title="OneTrack"
+      allow="clipboard-read; clipboard-write"
+      referrerpolicy="strict-origin-when-cross-origin"
+    ></iframe>
+
+  </div>
+
+
+  <script>
+
+    const frame =
+      document.getElementById(
+        "onetrack-frame"
+      );
+
+    const loading =
+      document.getElementById(
+        "loading"
+      );
+
+    const error =
+      document.getElementById(
+        "error"
+      );
+
+    let loadTimer = null;
+
+
+    function startLoadTimer() {
+
+      clearTimeout(loadTimer);
+
+      loadTimer = setTimeout(() => {
+
+        loading.classList.add(
+          "hidden"
+        );
+
+        error.classList.add(
+          "visible"
+        );
+
+      }, 15000);
+
+    }
+
+
+    function markLoaded() {
+
+      clearTimeout(loadTimer);
+
+      error.classList.remove(
+        "visible"
+      );
+
+      // Small delay avoids a white flash
+      // while the iframe paints.
+
+      setTimeout(() => {
+
+        loading.classList.add(
+          "hidden"
+        );
+
+      }, 180);
+
+    }
+
+
+    function reloadFrame() {
+
+      error.classList.remove(
+        "visible"
+      );
+
+      loading.classList.remove(
+        "hidden"
+      );
+
+      startLoadTimer();
+
+      const url =
+        new URL(frame.src);
+
+      url.searchParams.set(
+        "_reload",
+        Date.now().toString()
+      );
+
+      frame.src =
+        url.toString();
+
+    }
+
+
+    frame.addEventListener(
+      "load",
+      markLoaded
+    );
+
+    startLoadTimer();
+
+
+    if (
+      "serviceWorker" in navigator
+    ) {
+
+      window.addEventListener(
+        "load",
+        () => {
+
+          navigator
+            .serviceWorker
+            .register("./sw.js")
+            .catch(error => {
+
+              console.warn(
+                "Service worker registration failed:",
+                error
+              );
+
+            });
+
+        }
+      );
+
+    }
+
+  </script>
+
+</body>
+</html>
